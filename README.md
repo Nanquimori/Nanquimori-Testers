@@ -18,18 +18,9 @@ Portal reutilizável para inscrições em testes fechados dos aplicativos Nanqui
 - confirmação e instruções automáticas para o testador;
 - Política de Privacidade.
 
-## Ativar o formulário (uma única vez)
+## Estado do serviço
 
-1. Crie uma Planilha Google chamada `Nanquimori Testers`.
-2. Abra **Extensões > Apps Script**.
-3. Substitua `Code.gs` pelo conteúdo de `apps-script/Code.gs`.
-4. Execute `setup` e autorize planilha e envio de e-mail.
-5. Selecione **Implantar > Nova implantação > Aplicativo da Web**.
-6. Use **Executar como: Eu** e **Quem pode acessar: Qualquer pessoa**.
-7. Copie a URL terminada em `/exec` para `apiEndpoint` em `config.js`.
-8. Faça commit e push.
-
-Enquanto `apiEndpoint` estiver vazio, o site fica público, mas informa que o cadastro está em configuração.
+O formulário está conectado ao Google Apps Script e à Planilha Google privada `Nanquimori Testers`. O endpoint público retorna somente a contagem e os dados públicos das campanhas; os endereços de e-mail nunca são retornados ao site.
 
 ## Adicionar outro app
 
