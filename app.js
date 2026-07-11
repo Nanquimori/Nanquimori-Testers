@@ -172,7 +172,7 @@
         refs.select.value = nextCampaign.id;
       } else {
         message(
-          "Cadastro concluído nos dois aplicativos! Verifique seu e-mail para as instruções.",
+          "Inscrições recebidas nos dois aplicativos! O link será enviado por e-mail somente depois que o acesso estiver liberado.",
           "success",
         );
         refs.form.reset();

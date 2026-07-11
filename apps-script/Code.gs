@@ -3,6 +3,8 @@ const SETTINGS = Object.freeze({
   campaignsSheet: "Campanhas",
   registrationsSheet: "Inscricoes",
   senderName: "Nanquimori Testers",
+  webAppUrl:
+    "https://script.google.com/macros/s/AKfycbwDldu0Ob-On92Es7fYvXws3f-oQ5wqRghNo-WtLXg6yVhpzkDFEFVVaOcsEIuWFvzNUQ/exec",
 });
 
 function setup() {
@@ -58,7 +60,7 @@ function setup() {
     book.insertSheet(SETTINGS.registrationsSheet);
   if (registrations.getLastRow() === 0) {
     registrations
-      .getRange(1, 1, 1, 8)
+      .getRange(1, 1, 1, 9)
       .setValues([
         [
           "Data",
@@ -69,6 +71,7 @@ function setup() {
           "Status",
           "Origem",
           "UserAgent",
+          "AcessoEnviadoEm",
         ],
       ]);
     registrations.setFrozenRows(1);
@@ -88,6 +91,7 @@ function doGet(event) {
     const action = String(
       (event && event.parameter && event.parameter.action) || "status",
     ).toLowerCase();
+    if (action === "release") return releaseTester(event.parameter || {});
     if (action !== "status")
       return json({ ok: false, message: "Ação inválida." });
     return json({ ok: true, campaigns: publicCampaigns() });
@@ -149,8 +153,8 @@ function doPost(event) {
       String(data.source || "").slice(0, 500),
       String(data.userAgent || "").slice(0, 300),
     ]);
-    notifyOwner(campaign, email, current + 1);
-    confirmTester(campaign, email);
+    notifyOwner(campaign, email, normalized, current + 1);
+    confirmRegistration(campaign, email);
     return json({
       ok: true,
       status: "registered",
@@ -218,19 +222,24 @@ function registrationsSheet() {
     SETTINGS.registrationsSheet,
   );
   if (!sheet) throw new Error("Execute setup primeiro.");
+  if (sheet.getLastColumn() < 9 || !String(sheet.getRange(1, 9).getValue())) {
+    sheet.getRange(1, 9).setValue("AcessoEnviadoEm");
+  }
   return sheet;
 }
 function registrationRows(sheet) {
   if (sheet.getLastRow() < 2) return [];
   return sheet
-    .getRange(2, 1, sheet.getLastRow() - 1, 8)
+    .getRange(2, 1, sheet.getLastRow() - 1, 9)
     .getValues()
-    .map((row) => ({
+    .map((row, index) => ({
+      rowNumber: index + 2,
       campaignId: String(row[1]).trim(),
       email: normalizeEmail(row[4] || row[3]),
       status: String(row[5] || "pendente")
         .trim()
         .toLowerCase(),
+      accessSentAt: row[8],
     }));
 }
 function parse(event) {
@@ -264,21 +273,127 @@ function safe(value) {
     .replace(/'/g, "&#039;");
 }
 
-function notifyOwner(campaign, email, position) {
+function notifyOwner(campaign, email, normalizedEmail, position) {
+  const releaseUrl = buildReleaseUrl(campaign.id, normalizedEmail);
   MailApp.sendEmail({
     to: SETTINGS.ownerEmail,
     subject: `[Testadores] Nova inscrição — ${campaign.name}`,
     name: SETTINGS.senderName,
-    htmlBody: `<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>Nova inscrição em ${safe(campaign.name)}</h2><p><b>E-mail:</b> ${safe(email)}</p><p><b>Ocupação:</b> ${position}/${campaign.capacity}</p><p>Adicione esse endereço à lista do Google Play Console e altere o status na planilha para <b>Liberado</b>.</p></div>`,
+    htmlBody: `<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>Nova inscrição em ${safe(campaign.name)}</h2><p><b>E-mail:</b> ${safe(email)}</p><p><b>Ocupação:</b> ${position}/${campaign.capacity}</p><p>Primeiro adicione esse endereço à lista do Google Play Console. Somente depois clique no botão abaixo.</p><p><a href="${safe(releaseUrl)}" style="display:inline-block;padding:12px 18px;background:#151311;color:#fff;text-decoration:none"><b>Confirmar liberação e enviar link</b></a></p><p>O botão autoriza o cadastro na planilha e envia o link ao testador uma única vez.</p></div>`,
   });
 }
-function confirmTester(campaign, email) {
+function confirmRegistration(campaign, email) {
   const feedback = campaign.feedbackEmail || SETTINGS.ownerEmail;
   MailApp.sendEmail({
     to: email,
     replyTo: feedback,
-    subject: `Cadastro recebido — teste fechado do ${campaign.name}`,
+    subject: `Inscrição recebida — aguardando liberação do ${campaign.name}`,
     name: SETTINGS.senderName,
-    htmlBody: `<div style="max-width:620px;font-family:Arial,sans-serif;line-height:1.65"><h2>Seu cadastro foi recebido.</h2><p>Você solicitou uma vaga no teste fechado do <b>${safe(campaign.name)}</b> — ${safe(campaign.role)}.</p><p>Aguarde a inclusão do seu e-mail e depois use a mesma Conta Google no celular.</p><h3>Participar no Android</h3><p>Os testadores podem participar do teste usando o Google Play no Android.</p><p><a href="${safe(campaign.storeUrl)}"><b>Participar no Android</b></a></p><h3>Durante os ${campaign.testDays} dias</h3><ul><li>permaneça inscrito;</li><li>use o app em dias diferentes;</li><li>mantenha a versão atualizada;</li><li>também se cadastre no outro aplicativo da rodada;</li><li>envie feedback para <a href="mailto:${safe(feedback)}">${safe(feedback)}</a>.</li></ul><p>Informe o app, modelo do aparelho, Android, passos do problema e uma captura quando possível.</p><p>Obrigado por ajudar um projeto independente.</p></div>`,
+    htmlBody: `<div style="max-width:620px;font-family:Arial,sans-serif;line-height:1.65"><h2>Seu cadastro foi recebido.</h2><p>Você solicitou uma vaga no teste fechado do <b>${safe(campaign.name)}</b> — ${safe(campaign.role)}.</p><p>Seu acesso ainda está sendo liberado. O link do Google Play <b>não é enviado nesta etapa</b>, porque ainda não funcionaria para sua conta.</p><p>Quando a Conta Google informada estiver autorizada no teste, você receberá outro e-mail com o link direto para participar no Android.</p><p>Em caso de dúvida, escreva para <a href="mailto:${safe(feedback)}">${safe(feedback)}</a>.</p><p>Obrigado por ajudar um projeto independente.</p></div>`,
   });
+}
+
+function buildReleaseUrl(campaignId, email) {
+  const token = releaseToken(campaignId, email);
+  return `${SETTINGS.webAppUrl}?action=release&campaignId=${encodeURIComponent(campaignId)}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
+}
+
+function releaseToken(campaignId, email) {
+  const properties = PropertiesService.getScriptProperties();
+  let secret = properties.getProperty("RELEASE_SECRET");
+  if (!secret) {
+    secret = `${Utilities.getUuid()}${Utilities.getUuid()}`;
+    properties.setProperty("RELEASE_SECRET", secret);
+  }
+  const signature = Utilities.computeHmacSha256Signature(
+    `${campaignId}\n${normalizeEmail(email)}`,
+    secret,
+  );
+  return Utilities.base64EncodeWebSafe(signature).replace(/=+$/g, "");
+}
+
+function releaseTester(parameters) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    const campaignId = String(parameters.campaignId || "").trim();
+    const email = normalizeEmail(parameters.email);
+    const token = String(parameters.token || "");
+    if (
+      !campaignId ||
+      !validEmail(email) ||
+      token !== releaseToken(campaignId, email)
+    ) {
+      return releasePage(
+        "Link inválido",
+        "Esta autorização não é válida.",
+        false,
+      );
+    }
+    const campaign = campaigns().find((item) => item.id === campaignId);
+    if (!campaign) {
+      return releasePage(
+        "Campanha não encontrada",
+        "O aplicativo não está mais disponível.",
+        false,
+      );
+    }
+    const sheet = registrationsSheet();
+    const registration = registrationRows(sheet).find(
+      (row) =>
+        row.campaignId === campaignId &&
+        row.email === email &&
+        row.status !== "cancelado",
+    );
+    if (!registration) {
+      return releasePage(
+        "Inscrição não encontrada",
+        "Nenhum cadastro ativo corresponde a este link.",
+        false,
+      );
+    }
+    if (registration.accessSentAt) {
+      return releasePage(
+        "Acesso já enviado",
+        "O testador já recebeu o link anteriormente.",
+        true,
+      );
+    }
+    sheet.getRange(registration.rowNumber, 6).setValue("Liberado");
+    sendAccessEmail(campaign, email);
+    sheet.getRange(registration.rowNumber, 9).setValue(new Date());
+    return releasePage(
+      "Acesso liberado",
+      `O link do ${campaign.name} foi enviado para ${email}.`,
+      true,
+    );
+  } catch (error) {
+    console.error(error);
+    return releasePage(
+      "Não foi possível liberar",
+      "Tente novamente em alguns instantes.",
+      false,
+    );
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (ignored) {}
+  }
+}
+
+function sendAccessEmail(campaign, email) {
+  const feedback = campaign.feedbackEmail || SETTINGS.ownerEmail;
+  MailApp.sendEmail({
+    to: email,
+    replyTo: feedback,
+    subject: `Acesso liberado — teste fechado do ${campaign.name}`,
+    name: SETTINGS.senderName,
+    htmlBody: `<div style="max-width:620px;font-family:Arial,sans-serif;line-height:1.65"><h2>Seu acesso foi liberado.</h2><p>A Conta Google <b>${safe(email)}</b> foi autorizada no teste fechado do <b>${safe(campaign.name)}</b> — ${safe(campaign.role)}.</p><h3>Participar no Android</h3><p><a href="${safe(campaign.storeUrl)}"><b>Participar no Android</b></a></p><h3>Durante os ${campaign.testDays} dias</h3><ul><li>permaneça inscrito;</li><li>use o app em dias diferentes;</li><li>mantenha a versão atualizada;</li><li>também se cadastre no outro aplicativo da rodada;</li><li>envie feedback para <a href="mailto:${safe(feedback)}">${safe(feedback)}</a>.</li></ul><p>Informe o app, modelo do aparelho, Android, passos do problema e uma captura quando possível.</p><p>Obrigado por ajudar um projeto independente.</p></div>`,
+  });
+}
+
+function releasePage(title, message, success) {
+  return HtmlService.createHtmlOutput(
+    `<main style="max-width:620px;margin:70px auto;padding:32px;font-family:Arial,sans-serif;line-height:1.6;border:1px solid #ddd"><h1 style="color:${success ? "#276749" : "#9b2c2c"}">${safe(title)}</h1><p>${safe(message)}</p><p>Esta página pode ser fechada.</p></main>`,
+  ).setTitle(title);
 }
