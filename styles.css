@@ -421,6 +421,13 @@ h2 {
   display: grid;
   gap: 9px;
 }
+.google-language-link {
+  width: fit-content;
+  margin-top: 5px;
+  color: var(--darkred);
+  font-size: 12px;
+  font-weight: 850;
+}
 .language-warning {
   margin-bottom: 34px;
   border-color: rgba(182, 56, 45, 0.35);
