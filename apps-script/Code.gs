@@ -94,6 +94,7 @@ function doGet(event) {
     if (action === "release") return releaseTester(event.parameter || {});
     if (action !== "status")
       return json({ ok: false, message: "Ação inválida." });
+    sendReleasedAccessEmails();
     return json({ ok: true, campaigns: publicCampaigns() });
   } catch (error) {
     console.error(error);
@@ -154,7 +155,6 @@ function doPost(event) {
       String(data.userAgent || "").slice(0, 300),
     ]);
     notifyOwner(campaign, email, normalized, current + 1);
-    confirmRegistration(campaign, email);
     return json({
       ok: true,
       status: "registered",
@@ -282,17 +282,6 @@ function notifyOwner(campaign, email, normalizedEmail, position) {
     htmlBody: `<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>Nova inscrição em ${safe(campaign.name)}</h2><p><b>E-mail:</b> ${safe(email)}</p><p><b>Ocupação:</b> ${position}/${campaign.capacity}</p><p>Primeiro adicione esse endereço à lista do Google Play Console. Somente depois clique no botão abaixo.</p><p><a href="${safe(releaseUrl)}" style="display:inline-block;padding:12px 18px;background:#151311;color:#fff;text-decoration:none"><b>Confirmar liberação e enviar link</b></a></p><p>O botão autoriza o cadastro na planilha e envia o link ao testador uma única vez.</p></div>`,
   });
 }
-function confirmRegistration(campaign, email) {
-  const feedback = campaign.feedbackEmail || SETTINGS.ownerEmail;
-  MailApp.sendEmail({
-    to: email,
-    replyTo: feedback,
-    subject: `Inscrição recebida — aguardando liberação do ${campaign.name}`,
-    name: SETTINGS.senderName,
-    htmlBody: `<div style="max-width:620px;font-family:Arial,sans-serif;line-height:1.65"><h2>Seu cadastro foi recebido.</h2><p>Você solicitou uma vaga no teste fechado do <b>${safe(campaign.name)}</b> — ${safe(campaign.role)}.</p><p>Seu acesso ainda está sendo liberado. O link do Google Play <b>não é enviado nesta etapa</b>, porque ainda não funcionaria para sua conta.</p><p>Quando a Conta Google informada estiver autorizada no teste, você receberá outro e-mail com o link direto para participar no Android.</p><p>Em caso de dúvida, escreva para <a href="mailto:${safe(feedback)}">${safe(feedback)}</a>.</p><p>Obrigado por ajudar um projeto independente.</p></div>`,
-  });
-}
-
 function buildReleaseUrl(campaignId, email) {
   const token = releaseToken(campaignId, email);
   return `${SETTINGS.webAppUrl}?action=release&campaignId=${encodeURIComponent(campaignId)}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
@@ -390,6 +379,29 @@ function sendAccessEmail(campaign, email) {
     name: SETTINGS.senderName,
     htmlBody: `<div style="max-width:620px;font-family:Arial,sans-serif;line-height:1.65"><h2>Seu acesso foi liberado.</h2><p>A Conta Google <b>${safe(email)}</b> foi autorizada no teste fechado do <b>${safe(campaign.name)}</b> — ${safe(campaign.role)}.</p><h3>Participar no Android</h3><p><a href="${safe(campaign.storeUrl)}"><b>Participar no Android</b></a></p><h3>Durante os ${campaign.testDays} dias</h3><ul><li>permaneça inscrito;</li><li>use o app em dias diferentes;</li><li>mantenha a versão atualizada;</li><li>também se cadastre no outro aplicativo da rodada;</li><li>envie feedback para <a href="mailto:${safe(feedback)}">${safe(feedback)}</a>.</li></ul><p>Informe o app, modelo do aparelho, Android, passos do problema e uma captura quando possível.</p><p>Obrigado por ajudar um projeto independente.</p></div>`,
   });
+}
+
+function sendReleasedAccessEmails() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) return;
+  try {
+    const sheet = registrationsSheet();
+    const campaignMap = Object.fromEntries(
+      campaigns().map((campaign) => [campaign.id, campaign]),
+    );
+    registrationRows(sheet).forEach((registration) => {
+      if (registration.status !== "liberado" || registration.accessSentAt)
+        return;
+      const campaign = campaignMap[registration.campaignId];
+      if (!campaign) return;
+      sendAccessEmail(campaign, registration.email);
+      sheet.getRange(registration.rowNumber, 9).setValue(new Date());
+    });
+  } catch (error) {
+    console.error(error);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function releasePage(title, message, success) {

@@ -15,7 +15,7 @@ Portal reutilizável para inscrições em testes fechados dos aplicativos Nanqui
 - prevenção de duplicados;
 - planilha privada com os e-mails;
 - aviso para `nanquimori@gmail.com`;
-- confirmação automática sem expor o link antes da liberação;
+- envio do link somente após a liberação solicitada pelo administrador;
 - Política de Privacidade.
 
 ## Estado do serviço

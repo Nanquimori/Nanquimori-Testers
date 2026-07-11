@@ -172,7 +172,7 @@
         refs.select.value = nextCampaign.id;
       } else {
         message(
-          "Inscrições recebidas nos dois aplicativos! O link será enviado por e-mail somente depois que o acesso estiver liberado.",
+          "Inscrições recebidas nos dois aplicativos! Nenhum e-mail é enviado agora. O link chegará somente depois que o acesso for liberado.",
           "success",
         );
         refs.form.reset();
