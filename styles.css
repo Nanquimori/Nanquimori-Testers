@@ -318,7 +318,7 @@ h2 {
 .countdown-detail {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin: -12px 0 18px;
 }

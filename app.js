@@ -16,6 +16,7 @@
     countdownDays: $("countdownDays"),
     countdownHours: $("countdownHours"),
     countdownMinutes: $("countdownMinutes"),
+    countdownSeconds: $("countdownSeconds"),
     testEndDate: $("testEndDate"),
   };
 
@@ -24,13 +25,15 @@
     const end = Date.parse(endsAt);
     if (!Number.isFinite(end)) return;
     const remaining = Math.max(0, end - Date.now());
-    const totalMinutes = Math.ceil(remaining / 60000);
-    const days = Math.floor(totalMinutes / 1440);
-    const hours = Math.floor((totalMinutes % 1440) / 60);
-    const minutes = totalMinutes % 60;
+    const totalSeconds = Math.ceil(remaining / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
     refs.countdownDays.textContent = String(days);
     refs.countdownHours.textContent = String(hours).padStart(2, "0");
     refs.countdownMinutes.textContent = String(minutes).padStart(2, "0");
+    refs.countdownSeconds.textContent = String(seconds).padStart(2, "0");
     refs.testEndDate.dateTime = endsAt;
     refs.testEndDate.textContent = new Intl.DateTimeFormat("pt-BR", {
       dateStyle: "long",
@@ -207,6 +210,6 @@
     );
   }
   updateCountdown();
-  window.setInterval(updateCountdown, 30000);
+  window.setInterval(updateCountdown, 1000);
   load();
 })();
