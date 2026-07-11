@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Participe dos testes fechados dos aplicativos Nanquimori."
+    />
+    <meta name="theme-color" content="#151311" />
+    <title>Nanquimori Testers</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js"></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Nanquimori Testers — início">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><strong>Nanquimori</strong><small>Testers</small></span>
+      </a>
+      <nav aria-label="Navegação">
+        <a href="#como">Como funciona</a><a href="#vagas">Vagas</a
+        ><a href="#feedback">Feedback</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Programa de teste fechado</p>
+          <h1>Ajude a lapidar o próximo lançamento.</h1>
+          <p class="lead">
+            Teste aplicativos Nanquimori antes da publicação, encontre problemas
+            reais e acompanhe a evolução durante 14 dias.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#cadastro">Quero participar</a
+            ><a class="button" href="#compromisso">Ver o compromisso</a>
+          </div>
+          <p class="microcopy">
+            Participação gratuita. Nenhum pagamento é solicitado.
+          </p>
+        </div>
+        <aside class="hero-card">
+          <p><span class="live-dot"></span> Inscrições acompanhadas</p>
+          <div class="orbit"><strong>14</strong><small>dias</small></div>
+          <dl>
+            <div>
+              <dt>Canal</dt>
+              <dd>Google Play</dd>
+            </div>
+            <div>
+              <dt>Formato</dt>
+              <dd>Teste fechado</dd>
+            </div>
+            <div>
+              <dt>Contato</dt>
+              <dd>Direto com o criador</dd>
+            </div>
+          </dl>
+        </aside>
+      </section>
+
+      <section class="section" id="como">
+        <header class="section-title">
+          <p class="eyebrow">Caminho do testador</p>
+          <h2>Simples, útil e transparente.</h2>
+          <p>
+            Você recebe instruções por e-mail e sabe exatamente o que fazer em
+            cada etapa.
+          </p>
+        </header>
+        <div class="steps">
+          <article>
+            <b>01</b>
+            <h3>Cadastre seu e-mail</h3>
+            <p>
+              Use a mesma Conta Google configurada na Play Store do celular
+              Android.
+            </p>
+          </article>
+          <article>
+            <b>02</b>
+            <h3>Aguarde a liberação</h3>
+            <p>
+              O endereço precisa ser incluído na lista fechada antes que o link
+              funcione.
+            </p>
+          </article>
+          <article>
+            <b>03</b>
+            <h3>Instale pela Play Store</h3>
+            <p>Aceite o convite oficial e instale o app pelo link recebido.</p>
+          </article>
+          <article>
+            <b>04</b>
+            <h3>Teste por 14 dias</h3>
+            <p>
+              Permaneça inscrito, use recursos reais em dias diferentes e envie
+              feedback.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section campaigns" id="vagas">
+        <header class="section-title split">
+          <div>
+            <p class="eyebrow">Campanhas abertas</p>
+            <h2>Escolha o app que deseja testar.</h2>
+          </div>
+          <button id="refreshStatus" class="text-button" type="button">
+            Atualizar vagas
+          </button>
+        </header>
+        <div id="campaignsGrid" class="campaign-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="commitment" id="compromisso">
+        <div>
+          <p class="eyebrow pale">Antes de se cadastrar</p>
+          <h2>Seu compromisso nos 14 dias</h2>
+        </div>
+        <div>
+          <ul>
+            <li>
+              <strong>Permaneça inscrito.</strong> Não saia do programa durante
+              os 14 dias consecutivos.
+            </li>
+            <li>
+              <strong>Use de verdade.</strong> Abra o app em dias diferentes e
+              experimente as funções principais.
+            </li>
+            <li>
+              <strong>Mantenha atualizado.</strong> Instale novas versões
+              oferecidas na faixa.
+            </li>
+            <li>
+              <strong>Conte o que aconteceu.</strong> Envie erros, dificuldades,
+              sugestões e o modelo do aparelho.
+            </li>
+            <li>
+              <strong>Proteja seus dados.</strong> Nunca envie senhas ou
+              documentos no feedback.
+            </li>
+          </ul>
+          <p class="note">
+            O Google exige permanência contínua; uso significativo ajuda a
+            demonstrar que o app foi realmente avaliado.
+          </p>
+        </div>
+      </section>
+
+      <section class="section registration" id="cadastro">
+        <div>
+          <p class="eyebrow">Inscrição</p>
+          <h2>Reserve uma vaga.</h2>
+          <p>
+            Quando o limite for atingido, o cadastro será bloqueado
+            automaticamente para aquele aplicativo.
+          </p>
+          <aside>
+            <strong>Uso do e-mail</strong>
+            <p>
+              Seu endereço será usado somente para administrar o teste, enviar o
+              convite e comunicar atualizações da campanha.
+            </p>
+          </aside>
+        </div>
+        <form id="registrationForm" novalidate>
+          <label
+            ><span>Aplicativo</span
+            ><select id="campaignSelect" name="campaignId" required>
+              <option value="">Selecione uma campanha</option>
+            </select></label
+          >
+          <label
+            ><span>E-mail da Conta Google</span
+            ><input
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="voce@gmail.com"
+              required
+            /><small
+              >Deve ser a conta usada na Play Store do aparelho.</small
+            ></label
+          >
+          <label class="honeypot" aria-hidden="true"
+            ><span>Não preencha</span
+            ><input name="website" type="text" tabindex="-1" autocomplete="off"
+          /></label>
+          <label class="check"
+            ><input name="commitment" type="checkbox" required /><span
+              >Posso permanecer inscrito e testar o aplicativo durante 14
+              dias.</span
+            ></label
+          >
+          <label class="check"
+            ><input name="privacy" type="checkbox" required /><span
+              >Concordo com o uso do e-mail conforme a
+              <a href="privacy/">Política de Privacidade</a>.</span
+            ></label
+          >
+          <button id="submitButton" class="button primary full" type="submit">
+            Enviar inscrição
+          </button>
+          <div
+            id="formMessage"
+            class="form-message"
+            role="status"
+            aria-live="polite"
+          ></div>
+        </form>
+      </section>
+
+      <section class="feedback" id="feedback">
+        <div>
+          <p class="eyebrow pale">Canal de feedback</p>
+          <h2>Encontrou algo? Conte diretamente.</h2>
+          <p>
+            Inclua o app, modelo do celular, versão do Android, o que estava
+            fazendo e, se possível, uma captura.
+          </p>
+        </div>
+        <a
+          href="mailto:nanquimori@gmail.com?subject=Feedback%20de%20teste%20-%20Nanquimori"
+          ><small>Enviar para</small><strong>nanquimori@gmail.com</strong
+          ><span>Abrir aplicativo de e-mail →</span></a
+        >
+      </section>
+    </main>
+
+    <footer>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span
+        ><span><strong>Nanquimori</strong><small>Testers</small></span>
+      </div>
+      <p>Testes fechados para aplicativos independentes feitos com cuidado.</p>
+      <nav>
+        <a href="privacy/">Privacidade</a
+        ><a href="mailto:nanquimori@gmail.com">Contato</a>
+      </nav>
+    </footer>
+  </body>
+</html>
