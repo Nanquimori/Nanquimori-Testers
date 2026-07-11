@@ -11,6 +11,7 @@ Portal reutilizável para inscrições em testes fechados dos aplicativos Nanqui
 ## Recursos
 
 - vários aplicativos no mesmo site;
+- inscrição conjunta obrigatória no Nyxovira e no Nyxalira;
 - limite individual por campanha e bloqueio automático;
 - prevenção de duplicados;
 - planilha privada com os e-mails;

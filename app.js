@@ -2,14 +2,12 @@
   "use strict";
   const config = window.NANQUIMORI_TESTERS_CONFIG || {};
   const state = {
-    campaigns: (config.campaigns || []).map(normalize),
+    campaigns: sortCampaigns((config.campaigns || []).map(normalize)),
     loading: false,
-    registeredThisSession: new Set(),
   };
   const $ = (id) => document.getElementById(id);
   const refs = {
     grid: $("campaignsGrid"),
-    select: $("campaignSelect"),
     form: $("registrationForm"),
     submit: $("submitButton"),
     message: $("formMessage"),
@@ -38,6 +36,17 @@
     };
   }
   const open = (item) => item.enabled && item.remaining > 0;
+  function sortCampaigns(campaigns) {
+    const order = ["nyxovira", "nyxalira"];
+    return campaigns.sort((a, b) => {
+      const aIndex = order.indexOf(a.id);
+      const bIndex = order.indexOf(b.id);
+      return (
+        (aIndex < 0 ? order.length : aIndex) -
+        (bIndex < 0 ? order.length : bIndex)
+      );
+    });
+  }
   const escape = (value) =>
     String(value)
       .replaceAll("&", "&amp;")
@@ -47,6 +56,8 @@
       .replaceAll("'", "&#039;");
 
   function render() {
+    const pairAvailable =
+      state.campaigns.length >= 2 && state.campaigns.every(open);
     refs.grid.innerHTML = state.campaigns.length
       ? state.campaigns
           .map((item) => {
@@ -54,27 +65,15 @@
             const percent = item.capacity
               ? Math.min(100, Math.round((item.current / item.capacity) * 100))
               : 100;
-            return `<article class="campaign-card ${available ? "" : "full-card"}"><p class="status"><i></i>${available ? "Inscrições abertas" : "Inscrições encerradas"}</p><p class="app-role">${escape(item.role)}</p><h3>${escape(item.name)}</h3><p>${escape(item.description)}</p><div class="android-participation"><strong>Como os testadores podem participar do seu teste</strong><span>Participar no Android</span><small>Os testadores podem participar do teste usando o Google Play no Android</small><a href="${escape(item.storeUrl)}" target="_blank" rel="noopener">Participar no Android</a></div><div class="capacity"><strong>${available ? `${item.remaining} ${item.remaining === 1 ? "vaga" : "vagas"}` : "Lista encerrada"}</strong><small>${item.current}/${item.capacity} inscritos</small></div><div class="bar"><i style="width:${percent}%"></i></div><div class="tags"><span>${item.testDays} dias</span><span>Android</span><span>Google Play</span></div><button class="button ${available ? "primary" : "disabled"}" type="button" data-campaign="${escape(item.id)}" ${available ? "" : "disabled"}>${available ? "Cadastrar neste app" : "Limite atingido"}</button></article>`;
+            return `<article class="campaign-card ${available ? "" : "full-card"}"><p class="status"><i></i>${available ? "Inscrições abertas" : "Inscrições encerradas"}</p><p class="app-role">${escape(item.role)}</p><h3>${escape(item.name)}</h3><p>${escape(item.description)}</p><div class="android-participation"><strong>Como os testadores podem participar do seu teste</strong><span>Participar no Android</span><small>Os testadores podem participar do teste usando o Google Play no Android</small><a href="${escape(item.storeUrl)}" target="_blank" rel="noopener">Participar no Android</a></div><div class="capacity"><strong>${available ? `${item.remaining} ${item.remaining === 1 ? "vaga" : "vagas"}` : "Lista encerrada"}</strong><small>${item.current}/${item.capacity} inscritos</small></div><div class="bar"><i style="width:${percent}%"></i></div><div class="tags"><span>${item.testDays} dias</span><span>Android</span><span>Google Play</span></div><button class="button ${pairAvailable ? "primary" : "disabled"}" type="button" data-joint-registration ${pairAvailable ? "" : "disabled"}>${pairAvailable ? "Cadastrar nos dois apps" : "Cadastro conjunto indisponível"}</button></article>`;
           })
           .join("")
       : '<p class="empty">Nenhuma campanha disponível no momento.</p>';
-    refs.grid.querySelectorAll("[data-campaign]").forEach((button) =>
+    refs.grid.querySelectorAll("[data-joint-registration]").forEach((button) =>
       button.addEventListener("click", () => {
-        refs.select.value = button.dataset.campaign;
         $("cadastro").scrollIntoView({ behavior: "smooth" });
       }),
     );
-    const selected = refs.select.value;
-    refs.select.innerHTML =
-      '<option value="">Selecione uma campanha</option>' +
-      state.campaigns
-        .map(
-          (item) =>
-            `<option value="${escape(item.id)}" ${open(item) ? "" : "disabled"}>${escape(item.name)} — ${open(item) ? `${item.remaining} vagas` : "lotado"}</option>`,
-        )
-        .join("");
-    if (state.campaigns.some((item) => item.id === selected && open(item)))
-      refs.select.value = selected;
   }
 
   function message(text, type = "") {
@@ -105,7 +104,7 @@
       });
       const data = await response.json();
       if (!data.ok || !Array.isArray(data.campaigns)) throw new Error();
-      state.campaigns = data.campaigns.map(normalize);
+      state.campaigns = sortCampaigns(data.campaigns.map(normalize));
       if (show) message("Vagas atualizadas.", "success");
     } catch {
       if (show)
@@ -130,20 +129,11 @@
       return;
     }
     const form = new FormData(refs.form);
-    const campaign = state.campaigns.find(
-      (item) => item.id === form.get("campaignId"),
-    );
-    if (!campaign || !open(campaign)) {
-      message("Essa lista já está completa.", "error");
-      await load();
-      return;
-    }
     refs.submit.disabled = true;
     refs.submit.textContent = "Enviando…";
     try {
       const payload = {
         action: "register",
-        campaignId: campaign.id,
         email: String(form.get("email") || "").trim(),
         website: String(form.get("website") || ""),
         commitment: form.get("commitment") === "on",
@@ -160,23 +150,13 @@
       const result = await response.json();
       if (!result.ok)
         throw new Error(result.message || "Não foi possível concluir.");
-      state.registeredThisSession.add(campaign.id);
-      const nextCampaign = state.campaigns.find(
-        (item) => open(item) && !state.registeredThisSession.has(item.id),
+      message(
+        result.status === "duplicate"
+          ? "Este e-mail já está inscrito nos dois aplicativos."
+          : "Inscrição concluída no Nyxovira e no Nyxalira! Nenhum e-mail é enviado agora. Os links chegarão somente depois que os acessos forem liberados.",
+        "success",
       );
-      if (nextCampaign) {
-        message(
-          `${result.status === "duplicate" ? "Este e-mail já estava inscrito" : "Inscrição recebida"} no ${campaign.name}. Agora envie o mesmo e-mail para o ${nextCampaign.name} para completar a rodada.`,
-          "success",
-        );
-        refs.select.value = nextCampaign.id;
-      } else {
-        message(
-          "Inscrições recebidas nos dois aplicativos! Nenhum e-mail é enviado agora. O link chegará somente depois que o acesso for liberado.",
-          "success",
-        );
-        refs.form.reset();
-      }
+      refs.form.reset();
       await load();
     } catch (error) {
       message(
@@ -185,7 +165,7 @@
       );
     } finally {
       refs.submit.disabled = false;
-      refs.submit.textContent = "Enviar inscrição";
+      refs.submit.textContent = "Cadastrar nos dois apps";
     }
   });
   refs.refresh.addEventListener("click", () => load(true));

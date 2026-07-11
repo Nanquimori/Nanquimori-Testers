@@ -3,6 +3,7 @@ const SETTINGS = Object.freeze({
   campaignsSheet: "Campanhas",
   registrationsSheet: "Inscricoes",
   senderName: "Nanquimori Testers",
+  requiredCampaignIds: ["nyxovira", "nyxalira"],
   webAppUrl:
     "https://script.google.com/macros/s/AKfycbwDldu0Ob-On92Es7fYvXws3f-oQ5wqRghNo-WtLXg6yVhpzkDFEFVVaOcsEIuWFvzNUQ/exec",
 });
@@ -119,46 +120,70 @@ function doPost(event) {
       normalized = normalizeEmail(email);
     if (!validEmail(normalized))
       throw new Error("Informe um endereço de e-mail válido.");
-    const campaign = campaigns().find(
-      (item) => item.id === String(data.campaignId || "").trim(),
+    const campaignMap = Object.fromEntries(
+      campaigns().map((campaign) => [campaign.id, campaign]),
     );
-    if (!campaign || !campaign.enabled)
-      throw new Error("Essa campanha não está disponível.");
+    const requiredCampaigns = SETTINGS.requiredCampaignIds.map(
+      (id) => campaignMap[id],
+    );
+    if (requiredCampaigns.some((campaign) => !campaign || !campaign.enabled)) {
+      throw new Error("O cadastro conjunto não está disponível.");
+    }
     const sheet = registrationsSheet(),
       rows = registrationRows(sheet);
-    if (
-      rows.some(
-        (row) =>
-          row.campaignId === campaign.id &&
-          row.email === normalized &&
-          row.status !== "cancelado",
-      )
-    )
+    const missingCampaigns = requiredCampaigns.filter(
+      (campaign) =>
+        !rows.some(
+          (row) =>
+            row.campaignId === campaign.id &&
+            row.email === normalized &&
+            row.status !== "cancelado",
+        ),
+    );
+    if (!missingCampaigns.length)
       return json({ ok: true, status: "duplicate" });
-    const current = rows.filter(
-      (row) => row.campaignId === campaign.id && row.status !== "cancelado",
-    ).length;
-    if (current >= campaign.capacity)
+    const counts = Object.fromEntries(
+      requiredCampaigns.map((campaign) => [
+        campaign.id,
+        rows.filter(
+          (row) => row.campaignId === campaign.id && row.status !== "cancelado",
+        ).length,
+      ]),
+    );
+    const fullCampaigns = missingCampaigns.filter(
+      (campaign) => counts[campaign.id] >= campaign.capacity,
+    );
+    if (fullCampaigns.length)
       return json({
         ok: false,
         code: "FULL",
-        message: "A lista deste aplicativo já atingiu o limite de inscrições.",
+        message: `Não há vaga disponível em ${fullCampaigns.map((item) => item.name).join(" e ")}. O cadastro precisa incluir os dois aplicativos.`,
       });
-    sheet.appendRow([
-      new Date(),
-      campaign.id,
-      campaign.name,
-      email,
-      normalized,
-      "Pendente",
-      String(data.source || "").slice(0, 500),
-      String(data.userAgent || "").slice(0, 300),
-    ]);
-    notifyOwner(campaign, email, normalized, current + 1);
+    const now = new Date();
+    const source = String(data.source || "").slice(0, 500);
+    const userAgent = String(data.userAgent || "").slice(0, 300);
+    sheet
+      .getRange(sheet.getLastRow() + 1, 1, missingCampaigns.length, 9)
+      .setValues(
+        missingCampaigns.map((campaign) => [
+          now,
+          campaign.id,
+          campaign.name,
+          email,
+          normalized,
+          "Pendente",
+          source,
+          userAgent,
+          "",
+        ]),
+      );
+    missingCampaigns.forEach((campaign) =>
+      notifyOwner(campaign, email, normalized, counts[campaign.id] + 1),
+    );
     return json({
       ok: true,
       status: "registered",
-      remaining: Math.max(0, campaign.capacity - current - 1),
+      campaigns: missingCampaigns.map((campaign) => campaign.id),
     });
   } catch (error) {
     console.error(error);
@@ -195,7 +220,15 @@ function campaigns() {
       description: String(row[7] || "Campanha de teste fechado.").trim(),
       storeUrl: String(row[8] || "").trim(),
       role: String(row[9] || "Aplicativo Android").trim(),
-    }));
+    }))
+    .sort((a, b) => {
+      const aIndex = SETTINGS.requiredCampaignIds.indexOf(a.id);
+      const bIndex = SETTINGS.requiredCampaignIds.indexOf(b.id);
+      return (
+        (aIndex < 0 ? SETTINGS.requiredCampaignIds.length : aIndex) -
+        (bIndex < 0 ? SETTINGS.requiredCampaignIds.length : bIndex)
+      );
+    });
 }
 function publicCampaigns() {
   const rows = registrationRows(registrationsSheet());
