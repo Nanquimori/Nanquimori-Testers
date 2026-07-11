@@ -13,8 +13,6 @@ window.NANQUIMORI_TESTERS_CONFIG = Object.freeze({
       current: 0,
       testDays: 14,
       enabled: true,
-      testUrl:
-        "https://play.google.com/apps/testing/com.nyxalira.reader?hl=pt-BR",
       storeUrl:
         "https://play.google.com/store/apps/details?id=com.nyxalira.reader&hl=pt-BR&gl=BR",
     },
@@ -28,7 +26,6 @@ window.NANQUIMORI_TESTERS_CONFIG = Object.freeze({
       current: 0,
       testDays: 14,
       enabled: true,
-      testUrl: "https://play.google.com/apps/testing/com.nyxovira.app?hl=pt-BR",
       storeUrl:
         "https://play.google.com/store/apps/details?id=com.nyxovira.app&hl=pt-BR&gl=BR&ah=A_TUJx658zx3jjRKRiagSWTiaw4",
     },

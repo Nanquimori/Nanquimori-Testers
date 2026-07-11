@@ -19,7 +19,7 @@ function setup() {
         "Aplicativo",
         "Limite",
         "Ativa",
-        "URLTeste",
+        "URLAndroid",
         "EmailFeedback",
         "Dias",
         "Descricao",
@@ -31,7 +31,7 @@ function setup() {
         "Nyxalira",
         20,
         true,
-        "https://play.google.com/apps/testing/com.nyxalira.reader?hl=pt-BR",
+        "https://play.google.com/store/apps/details?id=com.nyxalira.reader&hl=pt-BR&gl=BR",
         SETTINGS.ownerEmail,
         14,
         "Leitor Android para bibliotecas locais, mangás, quadrinhos e novels.",
@@ -43,7 +43,7 @@ function setup() {
         "Nyxovira",
         20,
         true,
-        "https://play.google.com/apps/testing/com.nyxovira.app?hl=pt-BR",
+        "https://play.google.com/store/apps/details?id=com.nyxovira.app&hl=pt-BR&gl=BR&ah=A_TUJx658zx3jjRKRiagSWTiaw4",
         SETTINGS.ownerEmail,
         14,
         "Baixa obras de fontes online por plugins e prepara a biblioteca para leitura offline no Nyxalira.",
@@ -186,7 +186,6 @@ function campaigns() {
       enabled:
         row[3] === true ||
         ["true", "sim"].includes(String(row[3]).toLowerCase()),
-      testUrl: String(row[4] || "").trim(),
       feedbackEmail: String(row[5] || SETTINGS.ownerEmail).trim(),
       testDays: Math.max(1, Number(row[6]) || 14),
       description: String(row[7] || "Campanha de teste fechado.").trim(),
@@ -210,7 +209,6 @@ function publicCampaigns() {
       remaining: Math.max(0, item.capacity - current),
       testDays: item.testDays,
       enabled: item.enabled,
-      testUrl: item.testUrl,
       storeUrl: item.storeUrl,
     };
   });
@@ -281,6 +279,6 @@ function confirmTester(campaign, email) {
     replyTo: feedback,
     subject: `Cadastro recebido — teste fechado do ${campaign.name}`,
     name: SETTINGS.senderName,
-    htmlBody: `<div style="max-width:620px;font-family:Arial,sans-serif;line-height:1.65"><h2>Seu cadastro foi recebido.</h2><p>Você solicitou uma vaga no teste fechado do <b>${safe(campaign.name)}</b> — ${safe(campaign.role)}.</p><p>Aguarde a inclusão do seu e-mail e depois use a mesma Conta Google no celular.</p><h3>1. Aceitar o convite</h3><p><a href="${safe(campaign.testUrl)}"><b>Abrir convite do Google</b></a></p><p>A página pode aparecer em inglês. Se houver o botão <b>“Become a tester”</b>, clique nele para aceitar.</p><p style="padding:14px;background:#fff3e8;border-left:4px solid #b6382d">Se a página já mostrar <b>“You’ll receive an update”</b> e <b>“Leave the program”</b>, sua conta já está participando. Não clique em “Leave the program”: esse botão serve exclusivamente para sair do teste.</p><h3>2. Instalar depois de aceitar</h3><p><a href="${safe(campaign.storeUrl)}"><b>Instalar no Google Play</b></a></p><p>O link de instalação não aceita o convite; ele somente instala o app depois que a participação foi aceita.</p><h3>Durante os ${campaign.testDays} dias</h3><ul><li>permaneça inscrito;</li><li>use o app em dias diferentes;</li><li>mantenha a versão atualizada;</li><li>também se cadastre no outro aplicativo da rodada;</li><li>envie feedback para <a href="mailto:${safe(feedback)}">${safe(feedback)}</a>.</li></ul><p>Informe o app, modelo do aparelho, Android, passos do problema e uma captura quando possível.</p><p>Obrigado por ajudar um projeto independente.</p></div>`,
+    htmlBody: `<div style="max-width:620px;font-family:Arial,sans-serif;line-height:1.65"><h2>Seu cadastro foi recebido.</h2><p>Você solicitou uma vaga no teste fechado do <b>${safe(campaign.name)}</b> — ${safe(campaign.role)}.</p><p>Aguarde a inclusão do seu e-mail e depois use a mesma Conta Google no celular.</p><h3>Participar no Android</h3><p>Os testadores podem participar do teste usando o Google Play no Android.</p><p><a href="${safe(campaign.storeUrl)}"><b>Participar no Android</b></a></p><h3>Durante os ${campaign.testDays} dias</h3><ul><li>permaneça inscrito;</li><li>use o app em dias diferentes;</li><li>mantenha a versão atualizada;</li><li>também se cadastre no outro aplicativo da rodada;</li><li>envie feedback para <a href="mailto:${safe(feedback)}">${safe(feedback)}</a>.</li></ul><p>Informe o app, modelo do aparelho, Android, passos do problema e uma captura quando possível.</p><p>Obrigado por ajudar um projeto independente.</p></div>`,
   });
 }

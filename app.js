@@ -34,7 +34,6 @@
       ),
       testDays: Math.max(1, Number(item.testDays) || 14),
       enabled: item.enabled !== false,
-      testUrl: String(item.testUrl || ""),
       storeUrl: String(item.storeUrl || ""),
     };
   }
@@ -55,7 +54,7 @@
             const percent = item.capacity
               ? Math.min(100, Math.round((item.current / item.capacity) * 100))
               : 100;
-            return `<article class="campaign-card ${available ? "" : "full-card"}"><p class="status"><i></i>${available ? "Inscrições abertas" : "Inscrições encerradas"}</p><p class="app-role">${escape(item.role)}</p><h3>${escape(item.name)}</h3><p>${escape(item.description)}</p><div class="campaign-links"><a href="${escape(item.testUrl)}" target="_blank" rel="noopener">1. Abrir convite do Google</a><a href="${escape(item.storeUrl)}" target="_blank" rel="noopener">2. Depois de aceitar, instalar</a></div><div class="capacity"><strong>${available ? `${item.remaining} ${item.remaining === 1 ? "vaga" : "vagas"}` : "Lista encerrada"}</strong><small>${item.current}/${item.capacity} inscritos</small></div><div class="bar"><i style="width:${percent}%"></i></div><div class="tags"><span>${item.testDays} dias</span><span>Android</span><span>Google Play</span></div><button class="button ${available ? "primary" : "disabled"}" type="button" data-campaign="${escape(item.id)}" ${available ? "" : "disabled"}>${available ? "Cadastrar neste app" : "Limite atingido"}</button></article>`;
+            return `<article class="campaign-card ${available ? "" : "full-card"}"><p class="status"><i></i>${available ? "Inscrições abertas" : "Inscrições encerradas"}</p><p class="app-role">${escape(item.role)}</p><h3>${escape(item.name)}</h3><p>${escape(item.description)}</p><div class="android-participation"><strong>Como os testadores podem participar do seu teste</strong><span>Participar no Android</span><small>Os testadores podem participar do teste usando o Google Play no Android</small><a href="${escape(item.storeUrl)}" target="_blank" rel="noopener">Participar no Android</a></div><div class="capacity"><strong>${available ? `${item.remaining} ${item.remaining === 1 ? "vaga" : "vagas"}` : "Lista encerrada"}</strong><small>${item.current}/${item.capacity} inscritos</small></div><div class="bar"><i style="width:${percent}%"></i></div><div class="tags"><span>${item.testDays} dias</span><span>Android</span><span>Google Play</span></div><button class="button ${available ? "primary" : "disabled"}" type="button" data-campaign="${escape(item.id)}" ${available ? "" : "disabled"}>${available ? "Cadastrar neste app" : "Limite atingido"}</button></article>`;
           })
           .join("")
       : '<p class="empty">Nenhuma campanha disponível no momento.</p>';
