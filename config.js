@@ -1,5 +1,6 @@
 window.NANQUIMORI_TESTERS_CONFIG = Object.freeze({
-  apiEndpoint: "",
+  apiEndpoint:
+    "https://script.google.com/macros/s/AKfycbwDldu0Ob-On92Es7fYvXws3f-oQ5wqRghNo-WtLXg6yVhpzkDFEFVVaOcsEIuWFvzNUQ/exec",
   feedbackEmail: "nanquimori@gmail.com",
   campaigns: [
     {
