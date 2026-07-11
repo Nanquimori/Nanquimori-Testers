@@ -177,5 +177,13 @@
     }
   });
   refs.refresh.addEventListener("click", () => load(true));
+  if (!config.apiEndpoint) {
+    refs.submit.disabled = true;
+    refs.submit.textContent = "Cadastro em configuração";
+    message(
+      "O formulário será liberado após a autorização do serviço de inscrições.",
+      "warning",
+    );
+  }
   load();
 })();

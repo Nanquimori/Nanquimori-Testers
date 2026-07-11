@@ -219,6 +219,13 @@ h2 {
   background: rgba(21, 19, 17, 0.04);
   cursor: not-allowed;
 }
+.button:disabled {
+  cursor: not-allowed;
+  border-color: var(--line);
+  background: #8f867c;
+  box-shadow: none;
+  transform: none;
+}
 .button.full {
   width: 100%;
 }
