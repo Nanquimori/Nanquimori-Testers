@@ -4,6 +4,7 @@
   const state = {
     campaigns: (config.campaigns || []).map(normalize),
     loading: false,
+    registeredThisSession: new Set(),
   };
   const $ = (id) => document.getElementById(id);
   const refs = {
@@ -21,6 +22,7 @@
     return {
       id: String(item.id || ""),
       name: String(item.name || "Aplicativo"),
+      role: String(item.role || "Aplicativo Android"),
       description: String(item.description || "Campanha de teste fechado."),
       capacity,
       current,
@@ -33,6 +35,7 @@
       testDays: Math.max(1, Number(item.testDays) || 14),
       enabled: item.enabled !== false,
       testUrl: String(item.testUrl || ""),
+      storeUrl: String(item.storeUrl || ""),
     };
   }
   const open = (item) => item.enabled && item.remaining > 0;
@@ -52,7 +55,7 @@
             const percent = item.capacity
               ? Math.min(100, Math.round((item.current / item.capacity) * 100))
               : 100;
-            return `<article class="campaign-card ${available ? "" : "full-card"}"><p class="status"><i></i>${available ? "Inscrições abertas" : "Inscrições encerradas"}</p><h3>${escape(item.name)}</h3><p>${escape(item.description)}</p><div class="capacity"><strong>${available ? `${item.remaining} ${item.remaining === 1 ? "vaga" : "vagas"}` : "Lista encerrada"}</strong><small>${item.current}/${item.capacity} inscritos</small></div><div class="bar"><i style="width:${percent}%"></i></div><div class="tags"><span>${item.testDays} dias</span><span>Android</span><span>Google Play</span></div><button class="button ${available ? "primary" : "disabled"}" type="button" data-campaign="${escape(item.id)}" ${available ? "" : "disabled"}>${available ? "Escolher este teste" : "Limite atingido"}</button></article>`;
+            return `<article class="campaign-card ${available ? "" : "full-card"}"><p class="status"><i></i>${available ? "Inscrições abertas" : "Inscrições encerradas"}</p><p class="app-role">${escape(item.role)}</p><h3>${escape(item.name)}</h3><p>${escape(item.description)}</p><div class="campaign-links"><a href="${escape(item.testUrl)}" target="_blank" rel="noopener">1. Aceitar convite em português</a><a href="${escape(item.storeUrl)}" target="_blank" rel="noopener">2. Instalar no Google Play</a></div><div class="capacity"><strong>${available ? `${item.remaining} ${item.remaining === 1 ? "vaga" : "vagas"}` : "Lista encerrada"}</strong><small>${item.current}/${item.capacity} inscritos</small></div><div class="bar"><i style="width:${percent}%"></i></div><div class="tags"><span>${item.testDays} dias</span><span>Android</span><span>Google Play</span></div><button class="button ${available ? "primary" : "disabled"}" type="button" data-campaign="${escape(item.id)}" ${available ? "" : "disabled"}>${available ? "Cadastrar neste app" : "Limite atingido"}</button></article>`;
           })
           .join("")
       : '<p class="empty">Nenhuma campanha disponível no momento.</p>';
@@ -158,13 +161,23 @@
       const result = await response.json();
       if (!result.ok)
         throw new Error(result.message || "Não foi possível concluir.");
-      message(
-        result.status === "duplicate"
-          ? "Este e-mail já está inscrito nessa campanha."
-          : "Inscrição recebida! As instruções serão enviadas por e-mail.",
-        "success",
+      state.registeredThisSession.add(campaign.id);
+      const nextCampaign = state.campaigns.find(
+        (item) => open(item) && !state.registeredThisSession.has(item.id),
       );
-      if (result.status !== "duplicate") refs.form.reset();
+      if (nextCampaign) {
+        message(
+          `${result.status === "duplicate" ? "Este e-mail já estava inscrito" : "Inscrição recebida"} no ${campaign.name}. Agora envie o mesmo e-mail para o ${nextCampaign.name} para completar a rodada.`,
+          "success",
+        );
+        refs.select.value = nextCampaign.id;
+      } else {
+        message(
+          "Cadastro concluído nos dois aplicativos! Verifique seu e-mail para as instruções.",
+          "success",
+        );
+        refs.form.reset();
+      }
       await load();
     } catch (error) {
       message(

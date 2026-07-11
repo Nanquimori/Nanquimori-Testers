@@ -26,9 +26,9 @@ O formulário está conectado ao Google Apps Script e à Planilha Google privada
 
 Adicione uma linha na aba `Campanhas`:
 
-| Id | Aplicativo | Limite | Ativa | URLTeste | EmailFeedback | Dias | Descricao |
-|---|---|---:|---|---|---|---:|---|
-| `novo-app` | `Novo App` | `20` | `TRUE` | link do teste | e-mail | `14` | descrição pública |
+| Id         | Aplicativo | Limite | Ativa  | URLTeste        | EmailFeedback | Dias | Descricao         | URLLoja      | Papel         |
+| ---------- | ---------- | -----: | ------ | --------------- | ------------- | ---: | ----------------- | ------------ | ------------- |
+| `novo-app` | `Novo App` |   `20` | `TRUE` | convite `pt-BR` | e-mail        | `14` | descrição pública | link da loja | função do app |
 
 Não é necessário alterar o site. Para liberar uma vaga, marque a inscrição como `Cancelado`. Depois de cadastrar o e-mail no Play Console, marque como `Liberado`.
 

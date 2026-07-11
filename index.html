@@ -108,12 +108,30 @@
         <header class="section-title split">
           <div>
             <p class="eyebrow">Campanhas abertas</p>
-            <h2>Escolha o app que deseja testar.</h2>
+            <h2>Do download à leitura offline.</h2>
           </div>
           <button id="refreshStatus" class="text-button" type="button">
             Atualizar vagas
           </button>
         </header>
+        <div class="pair-notice">
+          <strong>Esta rodada precisa dos dois aplicativos.</strong>
+          <p>
+            Cadastre o mesmo e-mail no <b>Nyxovira</b>, que baixa e prepara as
+            obras, e no <b>Nyxalira</b>, que faz a leitura offline. Cada app tem
+            sua própria lista no Google Play.
+          </p>
+        </div>
+        <div class="language-warning">
+          <strong
+            >Não clique em “Leave the program” ou “Sair do programa”.</strong
+          >
+          <p>
+            Se essa opção aparecer, você já aceitou o convite. Clique em
+            <b>“Instalar no Google Play”</b> para continuar. Os botões abaixo
+            solicitam as páginas em Português (Brasil).
+          </p>
+        </div>
         <div id="campaignsGrid" class="campaign-grid" aria-live="polite"></div>
       </section>
 
@@ -155,10 +173,11 @@
       <section class="section registration" id="cadastro">
         <div>
           <p class="eyebrow">Inscrição</p>
-          <h2>Reserve uma vaga.</h2>
+          <h2>Reserve uma vaga nos dois apps.</h2>
           <p>
-            Quando o limite for atingido, o cadastro será bloqueado
-            automaticamente para aquele aplicativo.
+            Envie o mesmo e-mail uma vez para o Nyxovira e outra para o
+            Nyxalira. Depois do primeiro cadastro, o site selecionará o segundo
+            app. Quando o limite for atingido, a lista será bloqueada.
           </p>
           <aside>
             <strong>Uso do e-mail</strong>
@@ -170,7 +189,7 @@
         </div>
         <form id="registrationForm" novalidate>
           <label
-            ><span>Aplicativo</span
+            ><span>Aplicativo — cadastre-se nos dois</span
             ><select id="campaignSelect" name="campaignId" required>
               <option value="">Selecione uma campanha</option>
             </select></label

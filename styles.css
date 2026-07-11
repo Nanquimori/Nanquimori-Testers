@@ -395,6 +395,36 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 22px;
 }
+.pair-notice,
+.language-warning {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.55fr) 1fr;
+  gap: 28px;
+  margin-bottom: 18px;
+  padding: 24px 28px;
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 248, 0.75);
+}
+.pair-notice strong,
+.language-warning strong {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.25;
+}
+.pair-notice p,
+.language-warning p {
+  margin: 0;
+  color: var(--soft);
+  font-size: 14px;
+}
+.language-warning {
+  margin-bottom: 34px;
+  border-color: rgba(182, 56, 45, 0.35);
+  background: rgba(182, 56, 45, 0.08);
+}
+.language-warning strong {
+  color: var(--darkred);
+}
 .campaign-card {
   padding: 30px;
   border: 1px solid var(--line);
@@ -424,6 +454,15 @@ h2 {
   margin: 28px 0 14px;
   font: 500 34px var(--serif);
 }
+.campaign-card .app-role {
+  min-height: auto;
+  margin: 22px 0 0;
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
 .campaign-card > p:not(.status) {
   min-height: 52px;
   color: var(--soft);
@@ -435,6 +474,24 @@ h2 {
   justify-content: space-between;
   gap: 20px;
   margin-top: 30px;
+}
+.campaign-links {
+  display: grid;
+  gap: 8px;
+  margin: 22px 0;
+}
+.campaign-links a {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+}
+.campaign-links a:hover {
+  border-color: var(--red);
+  color: var(--red);
 }
 .capacity strong {
   font: 500 21px var(--serif);
@@ -713,6 +770,12 @@ footer nav {
   }
   .section-title.split {
     display: block;
+  }
+  .pair-notice,
+  .language-warning {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 20px;
   }
   .steps {
     grid-template-columns: 1fr;
