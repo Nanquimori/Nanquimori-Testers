@@ -2,6 +2,10 @@ window.NANQUIMORI_TESTERS_CONFIG = Object.freeze({
   apiEndpoint:
     "https://script.google.com/macros/s/AKfycbwDldu0Ob-On92Es7fYvXws3f-oQ5wqRghNo-WtLXg6yVhpzkDFEFVVaOcsEIuWFvzNUQ/exec",
   feedbackEmail: "nanquimori@gmail.com",
+  testPeriod: {
+    startsAt: "2026-07-11T15:23:00-03:00",
+    endsAt: "2026-07-25T15:23:00-03:00",
+  },
   campaigns: [
     {
       id: "nyxovira",

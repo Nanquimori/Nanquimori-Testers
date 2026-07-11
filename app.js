@@ -12,7 +12,36 @@
     submit: $("submitButton"),
     message: $("formMessage"),
     refresh: $("refreshStatus"),
+    countdownStatus: $("countdownStatus"),
+    countdownDays: $("countdownDays"),
+    countdownHours: $("countdownHours"),
+    countdownMinutes: $("countdownMinutes"),
+    testEndDate: $("testEndDate"),
   };
+
+  function updateCountdown() {
+    const endsAt = String(config.testPeriod?.endsAt || "");
+    const end = Date.parse(endsAt);
+    if (!Number.isFinite(end)) return;
+    const remaining = Math.max(0, end - Date.now());
+    const totalMinutes = Math.ceil(remaining / 60000);
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    refs.countdownDays.textContent = String(days);
+    refs.countdownHours.textContent = String(hours).padStart(2, "0");
+    refs.countdownMinutes.textContent = String(minutes).padStart(2, "0");
+    refs.testEndDate.dateTime = endsAt;
+    refs.testEndDate.textContent = new Intl.DateTimeFormat("pt-BR", {
+      dateStyle: "long",
+      timeStyle: "short",
+      timeZone: "America/Sao_Paulo",
+    }).format(new Date(end));
+    if (remaining === 0) {
+      refs.countdownStatus.innerHTML =
+        '<span class="live-dot ended"></span> Período encerrado';
+    }
+  }
 
   function normalize(item) {
     const capacity = Math.max(0, Number(item.capacity) || 0);
@@ -177,5 +206,7 @@
       "warning",
     );
   }
+  updateCountdown();
+  window.setInterval(updateCountdown, 30000);
   load();
 })();

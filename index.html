@@ -45,8 +45,24 @@
           </p>
         </div>
         <aside class="hero-card">
-          <p><span class="live-dot"></span> Inscrições acompanhadas</p>
-          <div class="orbit"><strong>14</strong><small>dias</small></div>
+          <p id="countdownStatus">
+            <span class="live-dot"></span> Teste em andamento
+          </p>
+          <div class="orbit">
+            <strong id="countdownDays">14</strong><small>dias restantes</small>
+          </div>
+          <div class="countdown-detail" aria-label="Tempo restante">
+            <div><strong id="countdownHours">00</strong><span>horas</span></div>
+            <div>
+              <strong id="countdownMinutes">00</strong><span>minutos</span>
+            </div>
+          </div>
+          <p class="countdown-end">
+            Termina em
+            <time id="testEndDate" datetime="2026-07-25T15:23:00-03:00"
+              >25 de julho de 2026 às 15:23</time
+            >
+          </p>
           <dl>
             <div>
               <dt>Canal</dt>

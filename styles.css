@@ -271,6 +271,10 @@ h2 {
   background: #72b788;
   box-shadow: 0 0 0 5px rgba(114, 183, 136, 0.12);
 }
+.live-dot.ended {
+  background: #b6382d;
+  box-shadow: 0 0 0 5px rgba(182, 56, 45, 0.14);
+}
 .orbit {
   position: relative;
   width: 206px;
@@ -310,6 +314,46 @@ h2 {
   color: #d6c7b2;
   letter-spacing: 0.25em;
   text-transform: uppercase;
+}
+.countdown-detail {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: -12px 0 18px;
+}
+.countdown-detail div {
+  display: grid;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.035);
+}
+.countdown-detail strong {
+  font: 500 28px/1 var(--serif);
+}
+.countdown-detail span {
+  margin-top: 5px;
+  color: #aaa098;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.hero-card > p.countdown-end {
+  margin: 0 0 20px;
+  color: #d6c7b2;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+.countdown-end time {
+  display: block;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
 }
 .hero-card dl {
   position: relative;
