@@ -211,5 +211,10 @@
   }
   updateCountdown();
   window.setInterval(updateCountdown, 1000);
+  window.setInterval(() => load(), 15000);
+  window.addEventListener("focus", () => load());
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) load();
+  });
   load();
 })();
